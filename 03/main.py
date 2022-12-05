@@ -13,7 +13,7 @@ def one(path):
             y = set(line[len(line) // 2:])
             p = x.intersection(y).pop()
             sum += get_priority(p)
-    print(sum)
+    print('1:', sum)
 
 
 def two(path):
@@ -27,7 +27,7 @@ def two(path):
     for x, y, z in zip(*[iter(rs)] * 3):
         p = x.intersection(y, z).pop()
         sum += get_priority(p)
-    print(sum)
+    print('2:', sum)
 
 
 if __name__ == '__main__':
