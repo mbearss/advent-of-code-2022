@@ -9,6 +9,6 @@ if __name__ == '__main__':
             for k, s in enumerate(size):
                 for i in range(len(line)):
                     if len(set(line[i:i+s])) == s:
-                        print(str(k) + ':', i + s)
+                        print(str(k+1) + ':', i + s)
                         break
 
