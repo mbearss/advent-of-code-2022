@@ -14,10 +14,43 @@ class Node:
     type: int
 
     def __str__(self):
-        return str(self.xloc + 1) + ', ' + str(self.yloc + 1)
+        return str(self.yloc) + ', ' + str(self.xloc)
+
+def wrap(pos, dir):
+    x, y = pos.real, pos.imag
+    match dir, x // side_length, y // side_length:
+        case 1j, 0, _:
+            return complex((side_length * 3 - 1) - x, (side_length * 2 - 1)), -1j
+        case 1j, 1, _:
+            return complex((side_length - 1), x + side_length), -1
+        case 1j, 2, _:
+            return complex((side_length * 3 - 1) - x, (side_length * 3 - 1)), -1j
+        case 1j, 3, _:
+            return complex((side_length * 3 - 1), x - (side_length * 2)), -1
+        case -1j, 0, _:
+            return complex((side_length * 3 - 1) - x, 0), 1j
+        case -1j, 1, _:
+            return complex((side_length * 2), x - side_length), 1
+        case -1j, 2, _:
+            return complex((side_length * 3 - 1) - x, side_length), 1j
+        case -1j, 3, _:
+            return complex(0, x - (side_length * 2)), 1
+        case 1, _, 0:
+            return complex(0, y + (side_length * 2)), 1
+        case 1, _, 1:
+            return complex((side_length * 2) + y, (side_length - 1)), -1j
+        case 1, _, 2:
+            return complex(-side_length + y, (side_length * 2 - 1)), -1j
+        case -1, _, 0:
+            return complex(side_length + y, side_length), 1j
+        case -1, _, 1:
+            return complex((side_length * 2) + y, 0), 1j
+        case -1, _, 2:
+            return complex((side_length * 4 - 1), y - (side_length * 2)), -1
 
 
 if __name__ == '__main__':
+    grid = []
     with open('input.txt') as f:
         y = 0
         g = []
@@ -25,6 +58,7 @@ if __name__ == '__main__':
         for line in f:
             if line.strip() == '':
                 break
+            grid.append(line)
             max_length = max(max_length, len(line[:-1]))
             g.append([])
             x = 0
@@ -110,3 +144,28 @@ if __name__ == '__main__':
         di = (di + (1 if t == 'R' else -1 if t == 'L' else 0)) % 4
 
     print('1:', 1000 * (current.yloc + 1) + 4 * (current.xloc + 1) + di)
+
+    # gave up on the linked list interpretation because the cube was melting my brain
+    # had some help from reddit with complex numbers
+    side_length = 50
+
+    pos, dir = grid[0].index('.') * 1j, 1j
+    grid = {(x + y * 1j): c for x, l in enumerate(grid)
+            for y, c in enumerate(l) if c in '.#'}
+
+    for i in re.split(r'(\d+[RL])', instructions):
+        if i == '':
+            continue
+        f, t = int(re.findall(r'\d+', i)[0]), i[-1]
+        for _ in range(int(f)):
+            p, d = pos + dir, dir
+            if p not in grid: p, d = wrap(p, d)
+            if grid[p] == '.':
+                pos, dir = p, d
+
+        if t == 'L':
+            dir *= +1j
+        elif t == 'R':
+            dir *= -1j
+
+    print('2:', int(1000 * (pos.real + 1) + 4 * (pos.imag + 1) + [1j, 1, -1j, -1].index(dir)))
